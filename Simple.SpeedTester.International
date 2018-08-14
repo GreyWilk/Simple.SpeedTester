@@ -40,7 +40,7 @@ $timenow2 = Get-Date -Format T
 
 $sw = [Diagnostics.Stopwatch]::StartNew()
 $Request=Get-Date; (New-Object System.Net.WebClient).DownloadFile($FileToDownload,"$env:TEMP\TmpFileSpeedTest.tmp") | Out-Null;
-[int]$speed = ((10 / ((NEW-TIMESPAN –Start $Request –End (Get-Date)).totalseconds)) * 8)
+[int]$speed = ((100 / ((NEW-TIMESPAN –Start $Request –End (Get-Date)).totalseconds)) * 8)
 $sw.Stop()
 
 $ElapsedTime = $sw.Elapsed
