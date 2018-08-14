@@ -55,7 +55,7 @@ Write-Host -ForegroundColor Red "  |  " -NoNewline
 Write-Host -ForegroundColor Yellow -BackgroundColor Black "$ElapsedTime elapsed time"
 
 
-$export = -join($datenow2 + ';' + $timenow2 + ';' + "$speed" + ';' + $ElapsedTime)
+$export = -join($datenow2 + ';' + $timenow2 + ';100MB' + "$speed" + ';' + $ElapsedTime)
 $export | Out-File -Append $filename
 start-sleep $TimeBetweenTests}
 until((Get-Date) -gt $TimeNow.AddHours($RunTime))
