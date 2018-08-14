@@ -29,7 +29,7 @@ $filepath = [Environment]::GetFolderPath("Desktop")
 $filename = -join($filepath + '\' + 'Speedtest.txt')
 
 if( !(Get-Item $filename -ErrorAction SilentlyContinue) ) {
-"Date;Time;DataRate;ElapsedTime(hh:mm:ss)" | Out-File $filename
+"Date;Time;FileSize;DataRate;ElapsedTime;DLSite" | Out-File $filename
 }
 else{}
 
@@ -55,7 +55,7 @@ Write-Host -ForegroundColor Red "  |  " -NoNewline
 Write-Host -ForegroundColor Yellow -BackgroundColor Black "$ElapsedTime elapsed time"
 
 
-$export = -join($datenow2 + ';' + $timenow2 + ';100MB;' + "$speed" + ';' + $ElapsedTime)
+$export = -join($datenow2 + ';' + $timenow2 + ';100MB;' + "$speed" + ';' + $ElapsedTime + ';' + $SiteToDLFrom)
 $export | Out-File -Append $filename
 start-sleep $TimeBetweenTests}
 until((Get-Date) -gt $TimeNow.AddHours($RunTime))
