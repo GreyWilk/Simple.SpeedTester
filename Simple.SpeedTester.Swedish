@@ -1,0 +1,66 @@
+##################
+## This is the Swedish version of the script. Can of course be modified for other countries by replacing the links where downloading from. 
+##
+##################
+## version 0.1.0   | First rough script. Not published :)
+## version 0.1.5   | Cleaned up code.
+##################
+
+$FileSize = "Medium" ## Small = 10MB. Medium = 100MB. Large = 1GB.
+$RunTime =  1
+$TimeBetweenTests = 10 ## In seconds (3600 sec per hour)
+$TimeNow = Get-Date
+$filepath = [Environment]::GetFolderPath("Desktop")
+$filename = -join($filepath + '\' + 'Speedtest.txt')
+
+if( !(Get-Item $filename -ErrorAction SilentlyContinue) ) {
+"Date;Time;FileSize;DataRate;ElapsedTime(hh:mm:ss)" | Out-File $filename
+}
+else{}
+
+cls
+do{
+$datenow2 = Get-Date -Format 'yyyyMMdd'
+$timenow2 = Get-Date -Format 'HH:mm:ss'
+
+if($FileSize -eq "Small"){
+$sw = [Diagnostics.Stopwatch]::StartNew()
+$Request=Get-Date; (New-Object System.Net.WebClient).DownloadFile("http://speedtest.tele2.net/10MB.zip","$env:TEMP\10MB.zip") | Out-Null;
+[int]$speed = ((10 / ((NEW-TIMESPAN –Start $Request –End (Get-Date)).totalseconds)) * 8)
+$sw.Stop()
+$FileSizeInText = "10MB"}
+
+elseif($FileSize -eq "Medium"){
+$sw = [Diagnostics.Stopwatch]::StartNew()
+$Request=Get-Date; (New-Object System.Net.WebClient).DownloadFile("http://speedtest.tele2.net/100MB.zip","$env:TEMP\100MB.zip") | Out-Null;
+[int]$speed = ((100 / ((NEW-TIMESPAN –Start $Request –End (Get-Date)).totalseconds)) * 8)
+$sw.Stop()
+$FileSizeInText = "100MB"}
+
+elseif($FileSize -eq "Large"){
+$sw = [Diagnostics.Stopwatch]::StartNew()
+$Request=Get-Date; (New-Object System.Net.WebClient).DownloadFile("http://speedtest.tele2.net/1GB.zip","$env:TEMP\1GB.zip") | Out-Null;
+[int]$speed = ((1000 / ((NEW-TIMESPAN –Start $Request –End (Get-Date)).totalseconds)) * 8)
+$sw.Stop()
+$FileSizeInText = "1GB"}
+
+$ElapsedTime = $sw.Elapsed
+$ElapsedTime = $ElapsedTime -replace "........$"
+
+Write-Host -ForegroundColor Yellow -BackgroundColor Black "$datenow2 $timenow2" -NoNewline
+Write-Host -ForegroundColor Red "  |  " -NoNewline
+Write-Host -ForegroundColor Cyan "$FileSizeInText file" -NoNewline
+Write-Host -ForegroundColor Red "  |  " -NoNewline
+Write-host -ForegroundColor Magenta "$($speed) Mbit/sec" -NoNewline
+Write-Host -ForegroundColor Red "  |  " -NoNewline
+Write-Host -ForegroundColor Yellow -BackgroundColor Black "$ElapsedTime elapsed time"
+
+
+$export = -join($datenow2 + ';' + $timenow2 + ';' + $FileSizeInText + ';' + "$speed" + ';' + $ElapsedTime)
+$export | Out-File -Append $filename
+start-sleep $TimeBetweenTests}
+until((Get-Date) -gt $TimeNow.AddHours($RunTime))
+
+if($FileSize -eq "Small"){Remove-Item "$env:TEMP\10MB.zip"}
+elseif($FileSize -eq "Medium"){Remove-Item "$env:TEMP\100MB.zip"}
+elseif($FileSize -eq "Large"){Remove-Item "$env:TEMP\1GB.zip"}
