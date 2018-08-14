@@ -1,0 +1,64 @@
+##################
+## This is the international version of the script. 
+## Only 100MB files included.
+##################
+## version 0.1.0   | First rough script. Not published :)
+## version 0.1.5   | Cleaned up code.
+##################
+
+## START Editable variables
+$SiteToDLFrom = "UK"              ## "UK" = United Kingdom. "USCA" = USA California. "USNY" = USA New York. "SE" = Sweden. "PRC" = China.
+$RunTime =  1                     ## In hours how long the script will run
+$TimeBetweenTests = 10            ## In seconds (3600 sec per hour)
+## END Editable variables
+
+## START Script
+if($SiteToDLFrom -eq "SE"){
+$FileToDownload = "http://speedtest.tele2.net/100MB.zip"} ## Swedish site
+Elseif($SiteToDLFrom -eq "UK"){
+$FileToDownload = "http://ipv4.download.thinkbroadband.com/100MB.zip"} ## UK Site
+Elseif($SiteToDLFrom -eq "USCA"){
+$FileToDownload = "http://speedtest-ca.turnkeyinternet.net/100mb.bin"} ## US CA Site
+Elseif($SiteToDLFrom -eq "USNY"){
+$FileToDownload = "http://speedtest-ny.turnkeyinternet.net/100mb.bin"} ## US NY Site
+Elseif($SiteToDLFrom -eq "PRC"){
+$FileToDownload = "http://www1.chinahoster.com/100mb"} ## PRC Site
+
+$TimeNow = Get-Date
+$filepath = [Environment]::GetFolderPath("Desktop")
+$filename = -join($filepath + '\' + 'Speedtest.txt')
+
+if( !(Get-Item $filename -ErrorAction SilentlyContinue) ) {
+"Date;Time;DataRate;ElapsedTime(hh:mm:ss)" | Out-File $filename
+}
+else{}
+
+cls
+do{
+$datenow2 = Get-Date -Format d
+$timenow2 = Get-Date -Format T
+
+$sw = [Diagnostics.Stopwatch]::StartNew()
+$Request=Get-Date; (New-Object System.Net.WebClient).DownloadFile($FileToDownload,"$env:TEMP\TmpFileSpeedTest.tmp") | Out-Null;
+[int]$speed = ((10 / ((NEW-TIMESPAN –Start $Request –End (Get-Date)).totalseconds)) * 8)
+$sw.Stop()
+
+$ElapsedTime = $sw.Elapsed
+$ElapsedTime = $ElapsedTime -replace "........$"
+
+Write-Host -ForegroundColor Yellow -BackgroundColor Black "$datenow2 $timenow2" -NoNewline
+Write-Host -ForegroundColor Red "  |  " -NoNewline
+Write-Host -ForegroundColor Cyan "$FileSizeInText file" -NoNewline
+Write-Host -ForegroundColor Red "  |  " -NoNewline
+Write-host -ForegroundColor Magenta "$($speed) Mbit/sec" -NoNewline
+Write-Host -ForegroundColor Red "  |  " -NoNewline
+Write-Host -ForegroundColor Yellow -BackgroundColor Black "$ElapsedTime elapsed time"
+
+
+$export = -join($datenow2 + ';' + $timenow2 + ';' + "$speed" + ';' + $ElapsedTime)
+$export | Out-File -Append $filename
+start-sleep $TimeBetweenTests}
+until((Get-Date) -gt $TimeNow.AddHours($RunTime))
+
+Remove-Item "$env:TEMP\TmpFileSpeedTest.tmp"
+## END Script
